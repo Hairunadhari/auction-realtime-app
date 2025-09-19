@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@radix-ui/react-popover": "^1.1.2",
+    "@splidejs/react-splide": "^0.7.12",
     "@tailwindcss/forms": "^0.5.7",
     "chart.js": "^4.4.1",
     "chartjs-adapter-moment": "^1.0.1",

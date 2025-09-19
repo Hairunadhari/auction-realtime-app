@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-export default function ModalListUser({ isOpen, onClose, onSubmit, formData, handleInputChange }) {
+export default function ModalAuction({ isOpen, onClose, onSubmit, formData, handleInputChange }) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {

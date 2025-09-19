@@ -3,7 +3,7 @@ export default function SignInForm() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="w-full max-w-sm bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Login</h2>
+        <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Sign In</h2>
         <form className="space-y-4">
           {/* Email */}
           <div>
