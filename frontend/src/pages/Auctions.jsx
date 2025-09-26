@@ -9,7 +9,9 @@ import ModalAuction from "../components/ModalAuction";
 function Auctions() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dataAuctions");
-   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
   const [formData, setFormData] = useState({
     name: "",
     brand: "",
@@ -17,16 +19,7 @@ function Auctions() {
     description: "",
     image: "",
   });
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Submitted:", formData);
-    setIsModalOpen(false);
-    // Tambahkan logic save/update ke backend atau state
-  };
+ 
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -49,7 +42,13 @@ function Auctions() {
                 </h1>
               </div>
               <div className="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
-                <button className="btn bg-gray-900 text-gray-100 hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-800 dark:hover:bg-white" onClick={() => setIsModalOpen(true)}>
+                <button
+                  className="btn bg-gray-900 text-gray-100 hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-800 dark:hover:bg-white"
+                  onClick={() => {
+                    setSelectedItem(null); // reset kalau tambah
+                    setIsModalOpen(true);
+                  }}
+                >
                   <svg
                     className="fill-current shrink-0 xs:hidden"
                     width="16"
@@ -58,7 +57,7 @@ function Auctions() {
                   >
                     <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
                   </svg>
-                  <span className="max-xs:sr-only">Add View</span>
+                  <span className="max-xs:sr-only">Add Item</span>
                 </button>
               </div>
             </div>
@@ -95,7 +94,7 @@ function Auctions() {
             {/* Cards */}
             <div className="">
               {activeTab === "dataAuctions" && <TableAuction />}
-        {activeTab === "user" && <SlideCardAuction />}
+              {activeTab === "user" && <SlideCardAuction />}
             </div>
           </div>
         </main>
@@ -103,12 +102,10 @@ function Auctions() {
         <Banner />
       </div>
 
-        <ModalAuction
+      <ModalAuction
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleSubmit}
-        formData={formData}
-        handleInputChange={handleInputChange}
+        initialData={selectedItem}
       />
     </div>
   );

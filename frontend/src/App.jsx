@@ -16,6 +16,7 @@ import Auctions from './pages/Auctions';
 import WinnerList from './pages/WinnerList';
 import SignInForm from './pages/SignInForm';
 import SignUpForm from './pages/SignUpForm';
+import { Toaster } from "react-hot-toast";
 
 function App() {
 
@@ -37,6 +38,7 @@ function App() {
         <Route exact path="/" element={<SignInForm />} />
         <Route exact path="/sign-up" element={<SignUpForm />} />
       </Routes>
+      <Toaster position="top-right" reverseOrder={false} />
     </>
   );
 }
