@@ -3,12 +3,10 @@ import Sidebar from "../partials/Sidebar";
 import Header from "../partials/Header";
 import Banner from "../partials/Banner";
 import TableAuction from "../components/TableAuction";
-import SlideCardAuction from "../components/SlideCardAuction";
 import ModalAuction from "../components/ModalAuction";
 
 function Auctions() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("dataAuctions");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -62,39 +60,9 @@ function Auctions() {
               </div>
             </div>
 
-            <div className="inline-flex rounded-md shadow-xs pb-5" role="group">
-              <button
-                type="button"
-                onClick={() => setActiveTab("dataAuctions")}
-                className={`px-4 py-2 text-sm font-medium border 
-            ${
-              activeTab === "dataAuctions"
-                ? "bg-blue-600 text-white border-blue-600"
-                : "text-gray-900 bg-white border-gray-200 hover:bg-gray-100 hover:text-blue-700"
-            } 
-            rounded-s-lg`}
-              >
-                Data Auctions
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("user")}
-                className={`px-4 py-2 text-sm font-medium border 
-            ${
-              activeTab === "user"
-                ? "bg-blue-600 text-white border-blue-600"
-                : "text-gray-900 bg-white border-gray-200 hover:bg-gray-100 hover:text-blue-700"
-            } 
-            rounded-e-lg`}
-              >
-                View User
-              </button>
-            </div>
-
             {/* Cards */}
             <div className="">
-              {activeTab === "dataAuctions" && <TableAuction />}
-              {activeTab === "user" && <SlideCardAuction />}
+                  <TableAuction/>
             </div>
           </div>
         </main>

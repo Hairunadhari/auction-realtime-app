@@ -1,19 +1,19 @@
+import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import DataTable from "datatables.net-react";
-import DT from "datatables.net-dt"; // default style
+import DT from "datatables.net-dt";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 
 DataTable.use(DT);
 
 export default function TableAuction() {
   const [items, setItems] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:5000/api/items")
       .then((res) => res.json())
-      .then((data) => {
-        setItems(data.items || []);
-      })
+      .then((data) => setItems(data.items || []))
       .catch((err) => console.error(err));
   }, []);
 
@@ -26,21 +26,35 @@ export default function TableAuction() {
       title: "Image",
       data: "images",
       render: (images, type, row) =>
-        images && images.length > 0 ? (
-          `<img src="${images[0]}" alt="${row.name}" style="width:50px;height:50px;border-radius:4px;" />`
-        ) : (
-          "No Image"
-        ),
+        images && images.length > 0
+          ? `<img src="${images[0]}" alt="${row.name}" style="width:50px;height:50px;border-radius:4px;" />`
+          : "No Image",
     },
     { title: "Starting Price", data: "startingPrice" },
     { title: "Estimated Value", data: "estimatedValue" },
     {
       title: "Action",
       data: null,
-      render: () =>
-        `<a href="#" class="text-blue-500 hover:underline">Edit</a>`,
+      render: (data, type, row) => {
+        return `
+        <button class="btn-edit bg-blue-500 text-white px-2 py-1 rounded">Edit</button>
+         <button class="btn-delete bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+        <button class="btn-create bg-purple-500 text-white px-2 py-1 rounded">Create Room</button>`;
+      },
     },
   ];
+
+  useEffect(() => {
+    const table = document.querySelector("table");
+    if (!table) return;
+
+    table.addEventListener("click", (e) => {
+      if (e.target && e.target.classList.contains("btn-create")) {
+        const row = items[e.target.closest("tr").rowIndex - 1]; // ambil data row
+        navigate(`/auction-room/${row._id}`);
+      }
+    });
+  }, [items, navigate]);
 
   return (
     <div className="p-4 bg-white shadow rounded">

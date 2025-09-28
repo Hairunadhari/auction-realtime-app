@@ -25,14 +25,19 @@ const createItem = async (req, res) => {
     const { name, description, condition, startingPrice, estimatedValue } =
       req.body;
 
-    // ambil path semua file yang di-upload
-    const images = req.files ? req.files.map((file) => file.path) : [];
+    // ambil URL backend dari request yg sedang jalan
+    const baseUrl = `${req.protocol}://${req.get("host")}/uploads/`;
+
+    // buat array full URL
+    const images = req.files
+      ? req.files.map((file) => baseUrl + file.filename)
+      : [];
 
     const item = new Item({
       name,
       description,
       condition,
-      images, // array of file path
+      images,
       startingPrice,
       estimatedValue,
     });
@@ -43,6 +48,22 @@ const createItem = async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "Failed to create item" });
   }
+
+  // GET /items/:id
+  
+};
+const getItemById = async (req, res) => {
+  try {
+    const item = await Item.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+    res.json(item);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch item" });
+  }
 };
 
-module.exports = { getItems, createItem };
+
+module.exports = { getItems, createItem, getItemById };

@@ -17,6 +17,7 @@ import WinnerList from './pages/WinnerList';
 import SignInForm from './pages/SignInForm';
 import SignUpForm from './pages/SignUpForm';
 import { Toaster } from "react-hot-toast";
+import ActionRoom from './pages/ActionRoom';
 
 function App() {
 
@@ -31,12 +32,13 @@ function App() {
   return (
     <>
       <Routes>
-        <Route exact path="/dashboard" element={<Dashboard />} />
-        <Route exact path="/list-user" element={<ListUser />} />
-        <Route exact path="/auctions" element={<Auctions />} />
-        <Route exact path="/winner-list" element={<WinnerList />} />
-        <Route exact path="/" element={<SignInForm />} />
-        <Route exact path="/sign-up" element={<SignUpForm />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/list-user" element={<ListUser />} />
+        <Route path="/auctions" element={<Auctions />} />
+        <Route path="/winner-list" element={<WinnerList />} />
+        <Route path="/" element={<SignInForm />} />
+        <Route path="/sign-up" element={<SignUpForm />} />
+        <Route path="/auction-room/:id" element={<ActionRoom />} />
       </Routes>
       <Toaster position="top-right" reverseOrder={false} />
     </>

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getItems, createItem } = require("../controllers/itemController");
+const { getItems, createItem, getItemById } = require("../controllers/itemController");
 const validateItem = require("../middleware/validateItem");
 const multer = require("multer");
 
@@ -18,6 +18,7 @@ const upload = multer({ storage });
 
 // GET items
 router.get("/", getItems);
+router.get("/:id", getItemById);
 
 // POST item dengan multiple images
 router.post("/", upload.array("images", 5), validateItem, createItem);
