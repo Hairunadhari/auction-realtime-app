@@ -4,34 +4,102 @@ import { useParams } from "react-router-dom";
 import Sidebar from "../partials/Sidebar";
 import Header from "../partials/Header";
 import Banner from "../partials/Banner";
+import { io } from "socket.io-client";
+
+// ⛔ jangan buat socket berkali-kali di dalam component
+const socket = io("http://localhost:5000");
 
 function ActionRoom() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { id } = useParams();
   const [item, setItem] = useState(null);
 
+  const [timeLeft, setTimeLeft] = useState(180); // 3 menit
+  const [currentBid, setCurrentBid] = useState(0);
+  const [bidder, setBidder] = useState("");
+  const [myBid, setMyBid] = useState("");
+
+  // ambil data item dari API
   useEffect(() => {
     fetch(`http://localhost:5000/api/items/${id}`)
       .then((res) => res.json())
-      .then((data) => setItem(data))
+      .then((data) => {
+        setItem(data);
+        setCurrentBid(data.startingPrice); // set bid awal
+      })
       .catch((err) => console.error(err));
   }, [id]);
 
-  const [timeLeft, setTimeLeft] = useState(180); // 3 menit = 180 detik
-  
-    useEffect(() => {
-      if (timeLeft <= 0) return;
-  
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-  
-      return () => clearInterval(timer);
-    }, [timeLeft]);
-  
-    // format jadi menit:detik
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+
+  // socket io connect
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("✅ Connected to server with ID:", socket.id);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("❌ Disconnected from server");
+    });
+
+    // update bid realtime dari server
+    socket.on("currentBid", ({ user, amount }) => {
+      setCurrentBid(amount);
+      setBidder(user);
+    });
+
+    // error bid
+    socket.on("bidError", (msg) => {
+      alert(msg);
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("currentBid");
+      socket.off("bidError");
+    };
+  }, []);
+
+  // kirim bid
+  const placeBid = () => {
+    const bidValue = parseInt(myBid);
+    if (!bidValue) return alert("Masukkan angka bid!");
+
+    if (bidValue <= currentBid)
+      return alert("Bid harus lebih besar dari current bid!");
+    if (bidValue < item.startingPrice)
+      return alert("Bid harus lebih besar dari starting price!");
+    if (timeLeft <= 0) return alert("Waktu auction sudah habis!");
+    
+    // kirim ke server
+    socket.emit("placeBid", {
+      user: 'sistem',
+      amount: bidValue,
+    });
+
+    setMyBid("");
+  };
+
+  useEffect(() => {
+    // sisa waktu dari server
+    socket.on("timeLeft", (time) => {
+      setTimeLeft(time);
+    });
+
+    // auction selesai
+    socket.on("auctionEnded", ({ winnerBid }) => {
+      alert(`⏰ Auction ended! Final price Rp ${winnerBid}`);
+    });
+
+    return () => {
+      socket.off("timeLeft");
+      socket.off("auctionEnded");
+    };
+  }, []);
+
   if (!item) return <p className="p-6">Loading...</p>;
 
   return (
@@ -48,7 +116,7 @@ function ActionRoom() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-700">
-                    Action Room
+                    Auction Room
                   </h2>
                 </div>
                 <span className="bg-gray-100 px-3 py-1 text-sm rounded-md text-gray-600">
@@ -85,7 +153,9 @@ function ActionRoom() {
                   <div className="grid grid-cols-2 gap-3 text-center border rounded-lg p-3 mb-4">
                     <div>
                       <p className="text-sm text-gray-500">Time Left</p>
-                      <p className="font-semibold">{minutes}:{seconds.toString().padStart(2, "0")}</p>
+                      <p className="font-semibold">
+                        {minutes}:{seconds.toString().padStart(2, "0")}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Auction Ending</p>
@@ -115,25 +185,32 @@ function ActionRoom() {
                     <span className="font-medium">Description:</span>{" "}
                     {item.description}
                   </p>
-                  {/* Bid current */}
-                  <div className="mt-6 flex items-center gap-3">
-                    <input
-                      type="text"
-                      placeholder={`Enter your bid (Minimum $${item.startingPrice})`}
-                      className="flex-1 border rounded-lg px-4 py-2 text-sm"
-                    />
-                    <button className="bg-red-600 text-white font-semibold px-6 py-2 rounded-lg">
-                      Current Bid
-                    </button>
+
+                  {/* Current Bid */}
+                  <div className="mt-6">
+                    <p className="text-lg font-bold">
+                      Current Bid: Rp {currentBid}{" "}
+                      {bidder && (
+                        <span className="text-sm text-gray-500">
+                          by {bidder}
+                        </span>
+                      )}
+                    </p>
                   </div>
+
                   {/* Bid Input */}
-                  <div className="mt-6 flex items-center gap-3">
+                  <div className="mt-4 flex items-center gap-3">
                     <input
-                      type="text"
-                      placeholder={`Enter your bid (Minimum $${item.startingPrice})`}
+                      type="number"
+                      value={myBid}
+                      onChange={(e) => setMyBid(e.target.value)}
+                      placeholder={`Enter your bid (Minimum Rp ${item.startingPrice})`}
                       className="flex-1 border rounded-lg px-4 py-2 text-sm"
                     />
-                    <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded-lg">
+                    <button
+                      onClick={placeBid}
+                      className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded-lg"
+                    >
                       Place Bid
                     </button>
                   </div>

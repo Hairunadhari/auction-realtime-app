@@ -2,7 +2,7 @@ const Item = require("../models/Item");
 
 // GET /Items
 const getItems = async (req, res) => {
-  const { page = 1, limit = 5, search = "" } = req.query;
+  const { page = 1, limit = 6, search = "" } = req.query;
   const query = search ? { name: { $regex: search, $options: "i" } } : {};
 
   const items = await Item.find(query)
